@@ -1,14 +1,13 @@
-<div class="app" *mobxAutorun="{ dontDetach: true }">
-  <div class="list">
+<div class="app">
+  <div class="list" *mobxAutorun>
     <div
-      *ngFor="let todo of todos; index as index"
+      *ngFor="let todo of ts.todos"
       class="item"
-      trackBy="trackByFn"
     >
-      <p>im item</p>
+      <p>{{todo.title}}</p>
     </div>
   </div>
-  <p>{{ todosAsString }}</p>
+  <!--  <p>{{ todosAsString }}</p>-->
   <!-- <div class="page-content page-container" id="page-content">
     <div class="padding">
       <div class="row container d-flex justify-content-center">
