@@ -1,13 +1,15 @@
-import { RootStore } from '../root.store';
-import { Todo } from './entity/todo.entity';
-import { makeAutoObservable, runInAction } from 'mobx';
-import { IDataStore } from './type/data-store.interface';
-import { TodosAdapter } from '../../adapters/todos.adapter';
-import { TodoFilterOptions } from '../view/global.view.store';
+import { RootStore }                                                           from '../root.store';
+import { Todo }                                                                from './entity/todo.entity';
+import { action, makeAutoObservable, makeObservable, observable, runInAction } from 'mobx';
+import { IDataStore }                                                          from './type/data-store.interface';
+import { TodosAdapter }                                                        from '../../adapters/todos.adapter';
+import { TodoFilterOptions }                                                   from '../view/global.view.store';
+import { Injectable }                                                          from '@angular/core';
 
+@Injectable({providedIn: 'root'})
 export class TodosStore implements IDataStore {
-  todos: Todo[] = [new Todo(this, 'hryu', 1)];
-  todosAdapter: TodosAdapter = new TodosAdapter();
+  todos: Todo[];
+  todosAdapter: TodosAdapter;
 
   get filteredTodos() {
     let todosToShow: Todo[] = this.todos;
@@ -24,8 +26,8 @@ export class TodosStore implements IDataStore {
     }
 
     // + search filter:
-    todosToShow = todosToShow.filter(({ title }) =>
-      title.includes(this.root.globalViewStore.currentSearch)
+    todosToShow = todosToShow.filter(({title}) =>
+                                       title.includes(this.root.globalViewStore.currentSearch)
     );
 
     return todosToShow;
@@ -34,21 +36,23 @@ export class TodosStore implements IDataStore {
   constructor(public root: RootStore) {
     this.init();
     makeAutoObservable(this);
+
+    this.root.todosStore = this;
   }
 
   init() {
-    this.todos = [];
+    this.todos        = [];
     this.todosAdapter = new TodosAdapter();
   }
 
   async loadItems() {
     this.root.globalViewStore.loading = true;
-    const todos = (await this.todosAdapter.getItems())
+    const todos                       = (await this.todosAdapter.getItems())
       .slice(0, 5)
       .map((todo) => new Todo(this, todo.title, todo.id));
 
     runInAction(() => {
-      this.todos = todos;
+      this.todos                        = todos;
       this.root.globalViewStore.loading = false;
     });
   }
